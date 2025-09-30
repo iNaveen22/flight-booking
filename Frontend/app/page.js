@@ -1,11 +1,24 @@
 "use client";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { FaGlobeAmericas, FaBolt, FaSuitcaseRolling } from "react-icons/fa";
 
 export default function HomePage() {
-  useUserId();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+   
+
+  const handleSearch = () => {
+ 
+        
+
+  }
+
+   useUserId();
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
@@ -36,16 +49,40 @@ export default function HomePage() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-        <div className="relative z-10 py-32 px-6 max-w-3xl text-white">
+        <div className="relative z-10 py-32 px-6 max-w-3xl text-white space-y-6">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight drop-shadow-lg">
             Fly Smarter. Travel Better.
           </h1>
           <p className="text-lg md:text-xl mb-10 drop-shadow-md opacity-90">
             Find the best flight deals, book instantly, and make every trip unforgettable.
           </p>
-          <Link href="/flights">
-            <button className="px-10 py-4 bg-blue-600 font-semibold rounded-xl shadow-lg hover:bg-blue-700 transition transform hover:-translate-y-1 hover:shadow-xl">
-              Search Flights
+
+          {/* Search Bar integrated as the CTA */}
+          
+            
+            <div className="w-full max-w-2xl mx-auto mt-8 flex items-center gap-2">
+            <input
+             type="text"
+              placeholder="Example: DEL-BLR 2025-10-01 2 travellers"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+             className="flex-1 px-6 py-3 rounded-full shadow-lg bg-white text-black focus:outline-none"
+            />
+          <button
+             onClick={handleSearch}
+             className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition"
+            >
+               Search
+            </button>
+              </div>
+
+
+
+
+          {/* My Bookings Button (optional secondary CTA) */}
+          <Link href="/book">
+            <button className="mt-4 px-8 py-3 bg-white text-blue-600 font-semibold rounded-xl shadow-lg hover:bg-gray-100 transition">
+              My Bookings
             </button>
           </Link>
         </div>
@@ -53,8 +90,7 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section className="p-12 grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-        {[
-          {
+        {[{
             title: "Global Flights",
             desc: "Access flights to destinations worldwide with real-time availability.",
             icon: <FaGlobeAmericas size={36} className="text-blue-500 mb-4" />,
@@ -81,21 +117,6 @@ export default function HomePage() {
         ))}
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 text-white py-20 text-center relative overflow-hidden">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 drop-shadow-lg">
-          Ready for Your Next Adventure?
-        </h2>
-        <p className="mb-8 text-lg md:text-xl drop-shadow-md opacity-90">
-          Book today and travel with confidence and comfort.
-        </p>
-        <Link href="/flights">
-          <button className="px-10 py-4 bg-white text-blue-600 font-semibold rounded-xl shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1">
-            Search Flights
-          </button>
-        </Link>
-      </section>
-
       {/* Footer */}
       <footer className="p-8 bg-gray-900 text-center text-gray-400 mt-auto space-y-4">
         <div className="flex justify-center gap-6 text-lg">
@@ -111,16 +132,20 @@ export default function HomePage() {
   );
 }
 
+// Custom Hook for User ID
+
 export function useUserId() {
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    let id = localStorage.getItem("userId");
-    if (!id) {
-      id = uuidv4();
-      localStorage.setItem("userId", id);
-    }
-    setUserId(id);
+    
+      let storedUserId = localStorage.getItem("userId");
+      if (!storedUserId) {
+        storedUserId = uuidv4();
+        localStorage.setItem("userId", storedUserId);
+      }
+      setUserId(storedUserId);
+    
   }, []);
 
   return userId;

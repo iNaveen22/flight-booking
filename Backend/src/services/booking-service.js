@@ -58,6 +58,7 @@ async function makePayment(data) {
         // we assume here the payment is successfull
         const response = await bookingRepository.update(data.bookingId, { status: BOOKED }, transaction);
         await transaction.commit();
+        return response;
     } catch (error) {
         await transaction.rollback();
         throw error;

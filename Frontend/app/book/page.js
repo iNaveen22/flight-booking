@@ -7,9 +7,10 @@ import { v4 as uuid } from "uuid";
 const BOOKING_URL = process.env.NEXT_PUBLIC_BOOKINGS_API || "http://localhost:4000";
 
 const statusPriority = {
-  BOOKED: 1,
-  INITIATED: 2,
-  CANCELLED: 3,
+ BOOKED:1,
+  booked: 3,
+  initiated: 2,
+  cancelled: 4,
 };
 
 function paymentId() {
@@ -41,22 +42,34 @@ export default function MyBookings() {
   const sortedBookings = [...bookings].sort(
     (a, b) => (statusPriority[a.status] || 4) - (statusPriority[b.status] || 4)
   );
-
-  const handleBook = async (bookingId, totalCost) => {
+console.log("bookings", sortedBookings)
+  const handleBook = async (booking) => {
     const userId = localStorage.getItem("userId");
     const idempotencyKey = paymentId();
 
+    console.log(booking.status)
+
+    if(booking.status === "booked" || booking.status === "BOOKED") {
+      alert("This booking is already paid.");
+      return;
+    }else if(booking.status === "cancelled" || booking.status === "CANCELLED") {
+      alert("This booking has been cancelled.");
+      return;
+    }
+
     await axios.post(
       `${BOOKING_URL}/api/v1/bookings/payments`,
-      { bookingId, userId, totalCost },
+      { bookingId: booking.id, userId, totalCost: booking.totalCost },
       { headers: { "x-idempotency-key": idempotencyKey } }
     );
 
     // update status locally
     setBookings((prev) =>
-      prev.map((b) => (b.id === bookingId ? { ...b, status: "BOOKED" } : b))
+      prev.map((b) => (b.id === booking.id ? { ...b, status: "BOOKED" } : b))
     );
+
   };
+  
 
   if (loading)
     return <p className="text-center mt-20 text-lg text-gray-600 animate-pulse">Loading your bookings...</p>;
@@ -99,9 +112,7 @@ export default function MyBookings() {
                         statusColors[booking.status] || statusColors.DEFAULT
                       }`}
                     >
-                      {booking.status === "BOOKED" && "✔️"}
-                      {booking.status === "CANCELLED" && "❌"}
-                      {booking.status === "INITIATED" && "⏳"}
+                      
                       {booking.status}
                     </span>
                   </div>
@@ -131,7 +142,7 @@ export default function MyBookings() {
 
                   <button
                     className="w-full mt-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-800 transition transform hover:scale-105"
-                    onClick={() => handleBook(booking.id, booking.totalCost)}
+                    onClick={() => handleBook(booking)}
                   >
                     Make Payment
                   </button>

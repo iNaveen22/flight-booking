@@ -14,6 +14,7 @@ async function createBooking(req, res) {
             noOfSeats: req.body.noOfSeats
         });
         SuccessResponse.data = response;
+        
         return res
             .status(StatusCodes.OK)
             .json(SuccessResponse);
@@ -45,6 +46,7 @@ async function makePayment(req, res) {
         return res
             .status(StatusCodes.OK)
             .json(SuccessResponse);
+            
     } catch (error) {
         const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
 
@@ -53,6 +55,7 @@ async function makePayment(req, res) {
             .status(statusCode)
             .json(ErrorResponse);
     }
+   
 }
 
 module.exports = {
