@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,7 +7,7 @@ import {
   FaPlaneArrival,
   FaRupeeSign,
 } from "react-icons/fa";
-
+import { useSearchParams } from "next/navigation";
 
 const flight_backend = process.env.NEXT_PUBLIC_FLIGHTS_API;
 const booking_backend = process.env.NEXT_PUBLIC_BOOKINGS_API;
@@ -24,6 +23,11 @@ function formatDateTime(value) {
 }
 
 export default function Flights() {
+  const searchParams = useSearchParams();
+  const trips = searchParams.get("trips");
+  const tripDate = searchParams.get("tripDate");
+  const trevellers = searchParams.get("trevellers") || 1;
+
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -31,10 +35,16 @@ export default function Flights() {
 
   useEffect(() => {
     const fetchFlights = async () => {
+      if (!trips || !tripDate) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const res = await axios.get(`${flight_backend}/api/v1/flights`);
-        setFlights(res.data.data);
-        
+        const res = await axios.get(`${flight_backend}/api/v1/flights`, {
+          params: { trips, tripDate, trevellers },
+        });
+        setFlights(res.data.data || []);
       } catch (err) {
         setError("⚠️ Failed to fetch flights.");
       } finally {
@@ -42,7 +52,7 @@ export default function Flights() {
       }
     };
     fetchFlights();
-  }, []);
+  }, [trips, tripDate, trevellers]);
 
   async function handleBooking(flightId, noOfSeats) {
     try {
@@ -131,11 +141,11 @@ function FlightCard({ flight, onBook }) {
         <div className="flex items-center justify-between mb-4 text-gray-700">
           <div className="flex items-center gap-2">
             <FaPlaneDeparture className="text-blue-500" />
-            <span>{flight.Departure_Airport?.name}</span>
+            <span>{flight.Departure_Airport?.name || flight.departureAirport}</span>
           </div>
           <div className="flex items-center gap-2">
             <FaPlaneArrival className="text-green-500" />
-            <span>{flight.Arrival_Airport?.name}</span>
+            <span>{flight.Arrival_Airport?.name || flight.arrivalAirport}</span>
           </div>
         </div>
 
@@ -147,7 +157,7 @@ function FlightCard({ flight, onBook }) {
           <p>
             <strong>Arrival:</strong> {formatDateTime(flight.arrivalTime)}
           </p>
-           <p>
+          <p>
             <strong>Boarding:</strong> {formatDateTime(flight.boardingGate)}
           </p>
         </div>
@@ -182,4 +192,3 @@ function FlightCard({ flight, onBook }) {
     </div>
   );
 }
-

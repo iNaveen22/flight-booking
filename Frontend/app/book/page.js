@@ -144,7 +144,7 @@ console.log("bookings", sortedBookings)
                     className="w-full mt-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-800 transition transform hover:scale-105"
                     onClick={() => handleBook(booking)}
                   >
-                    Make Payment
+                    {booking.status === "initiated" || booking.status === "INITIATED" ? "Pay Now" : "BOOKED"}
                   </button>
                 </div>
               </div>
