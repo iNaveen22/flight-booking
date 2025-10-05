@@ -1,56 +1,52 @@
 const { StatusCodes } = require("http-status-codes");
 const AppError = require("../utils/errors/app-error");
 
-
 class CrudRepository {
     constructor(model) {
         this.model = model;
     }
 
-    async create(data) {
-        const response = await this.model.create(data);
-        return response;
+    async create(data, transaction = null) {
+        return await this.model.create(data, { transaction });
     }
 
-    async destroy(data) {
+    async destroy(id, transaction = null) {
         const response = await this.model.destroy({
-            where: {
-                id: data
-            }
+            where: { id },
+            transaction
         });
-        if(!response){
-            throw new AppError("Not able to Delete resourse", StatusCodes.NOT_FOUND);
-        }
-        return response;
-    }
-    
-    async get(data) {
-        const response = await this.model.findByPk(data);
-        if(!response){
-            throw new AppError("not able to find resourse", StatusCodes.NOT_FOUND);
+
+        if (!response) {
+            throw new AppError("Not able to Delete resource", StatusCodes.NOT_FOUND);
         }
         return response;
     }
 
-    async getAll() {
-        const response = await this.model.findAll();
+    async get(id, transaction = null) {
+        const response = await this.model.findByPk(id, { transaction });
+        if (!response) {
+            throw new AppError("Not able to find resource", StatusCodes.NOT_FOUND);
+        }
         return response;
     }
 
-    async update(id, data) {
+    async getAll(transaction = null) {
+        return await this.model.findAll({ transaction });
+    }
+
+    async update(id, data, transaction = null) {
         const [updatedRowCount] = await this.model.update(data, {
-            where: {
-                id: id
-            }
+            where: { id },
+            transaction
         });
-    
+
         if (updatedRowCount === 0) {
             throw new AppError("Resource not found for update", StatusCodes.NOT_FOUND);
         }
 
-        const response = await this.model.findByPk(id);
-        return response;
+        return await this.model.findByPk(id, { transaction });
     }
 }
 
 module.exports = CrudRepository;
+

@@ -22,16 +22,21 @@ async function createBooking(data) {
         const totalBillingAmount = data.noOfSeats * flightData.price
         console.log("total billing amout", totalBillingAmount)
         const bookingPayload = { ...data, totalCost: totalBillingAmount }
-        const booking = await bookingRepository.create(bookingPayload, transaction);
+        console.log("booking payload >>>", bookingPayload);
+        console.log("transaction object >>>", transaction);
 
+        const booking = await bookingRepository.create(bookingPayload, transaction);
+        console.log("after booking create")
         await axios.patch(`${serverConfig.FLIGHT_SERVICE}/api/v1/flights/${data.flightId}/seats`, {
             seats: data.noOfSeats
         })
 
         await transaction.commit();
+        console.log("after total billing")
         return booking;
     } catch (error) {
         await transaction.rollback();
+        console.error("❌ Booking creation failed:", error);   // <-- add this
         throw error;
     }
 }
@@ -91,7 +96,7 @@ async function cancelOldBookings() {
         const response = await bookingRepository.cancelOldBookings(time);
         console.log(response)
         return response;
-    } catch (error) { 
+    } catch (error) {
         console.log(error);
     }
 }

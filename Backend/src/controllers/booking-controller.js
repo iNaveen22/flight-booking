@@ -6,13 +6,14 @@ const { message } = require("../utils/common/error-response");
 const inMemDb = {};
 
 async function createBooking(req, res) {
-    
+    console.log("before booking")
     try {
         const response = await BookingService.createBooking({
             flightId: req.body.flightId,
             userId: req.body.userId,
             noOfSeats: req.body.noOfSeats
         });
+        console.log("afetr the booking")
         SuccessResponse.data = response;
         
         return res

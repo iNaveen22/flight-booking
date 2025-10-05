@@ -22,6 +22,7 @@ function formatDateTime(value) {
   });
 }
 
+
 export default function Flights() {
   const searchParams = useSearchParams();
   const trips = searchParams.get("trips");
@@ -31,9 +32,14 @@ export default function Flights() {
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const userId = localStorage.getItem("userId");
+  const [userId,setUserId] = useState("")
+  
+  
 
   useEffect(() => {
+    const userid = localStorage.getItem("userId")
+    console.log(userid)
+    setUserId(userid)
     const fetchFlights = async () => {
       if (!trips || !tripDate) {
         setLoading(false);
@@ -55,6 +61,8 @@ export default function Flights() {
   }, [trips, tripDate, trevellers]);
 
   async function handleBooking(flightId, noOfSeats) {
+    console.log(flightId)
+    console.log(noOfSeats)
     try {
       await axios.post(`${booking_backend}/api/v1/bookings`, {
         flightId,
